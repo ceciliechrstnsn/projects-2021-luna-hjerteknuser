@@ -1,5 +1,6 @@
 ############################### multidimensional solver #######################################
 from scipy import optimize
+import numpy as np
 
 def u_func(x, mp):
     '''
@@ -36,7 +37,7 @@ def expenditure(x,mp):
     return E
 
 
-def solver(mp, printres = False):
+def optimizer(mp, printres = False):
     '''
     Uses a multi-dimensional constrained solver, that is the minimize function from the scipy.optimize package (method SLSQP), to calculate optimal allocation of ressources, i.e. optimal choice of consumption and housing quality.
 
@@ -45,7 +46,7 @@ def solver(mp, printres = False):
     printres (boolean)  : OPTIONAL, is False by default - if True, the result is printed
 
     Returns:
-    3 (float) parameters: h (housing quality), c (consumption) and u (utility) 
+    3 (float) parameters: first parameter is choice of housing quality, second is choice of consumption and lastly is the utility given choice of spending 
 
     '''
     initial_guess = ([0.5, 20]) # some guess
@@ -117,7 +118,7 @@ def objective_function(h,mp):
     return -u_func_1d(c,h,mp)
 
 
-def scalar_solver(mp, printres = False):
+def scalar_optimizer(mp, printres = False):
     '''
     Uses the non-bounded minimize_scalar function from the scipy.optimize package, exploiting the monotonicity of the problem, to calculate optimal allocation of ressources, i.e. optimal choice of consumption and housing quality.
 
@@ -126,7 +127,7 @@ def scalar_solver(mp, printres = False):
     printres (boolean)  : OPTIONAL, is False by default - if True, the result is printed
 
     Returns:
-    3 (float) parameters: h (housing quality), c (consumption) and u (utility) 
+    3 (float) parameters: first parameter is choice of housing quality, second is choice of consumption and lastly is the utility given choice of spending
 
     '''
     sol = optimize.minimize_scalar(objective_function, args = (mp), bounds = None)
@@ -141,5 +142,58 @@ def scalar_solver(mp, printres = False):
     return h, c, u
 
 
+############################### Calculating tax revenue for Q3 ####################################
+def taxrev(mp, cash, N, printres = False):
+    '''
+    Calculates the average tax burden given model parameters (mp), a distribution of cash-on-hand (cash) and a population size of N. This is done by calculating the optimal choice of spending and the implied tax payments associated with this choice.
+
+    Args:
+    mp (dictionary)     : should contain keys: phi, r, tau_g, tau_p, epsilon, p_bar, m and their respective values.
+    cash (array)        : array of length equal to population size. Contains cash-on-hand for each individual in population, i.e. the distribution of cash-on-hand.
+    N (integer)         : denotes the size of population.
+    printres (boolean)  : OPTIONAL, is False by default - if True, the result is printed.
+
+    Returns:
+     (float) parameters : average tax rate given model parameters, distribution of cash-on-hand in the population.
+     (array)            : Array of length equal to population size. Contains optimal choice of housing quality for each individual in population.
+
+    '''
+    # Initializing h-star storage and total tax payments
+    h_stars1 = np.empty(N)
+    total_tax = 0
+    
+    
+    # Looping over different levels of income to get choice of spending
+    for i, v in enumerate(cash):
+    # Storing the original m-value
+        if i == 0:
+            m_save = mp['m']
+    
+        # updating dictionary with new m-value (level of income)
+        mp['m'] = v
+    
+        # Solving with updated dictionary
+        result_vector = scalar_optimizer(mp)
+    
+        # loading choice of housing quality
+        h_stars1[i] = result_vector[0]
+        # Calculating tax revenue for choice of housing quality
+        tax = (mp['tau_g']*h_stars1[i]*mp['epsilon']+mp['tau_p']*max(h_stars1[i]*mp['epsilon']-mp['p_bar'],0))
+        total_tax += tax
+        
+        # Restoring original m in dictionary
+        if i == len(cash)-1:
+            mp['m'] = m_save
+    
+    # Calculating average tax burden for each household
+    average_t = total_tax/N
+
+    # If-block that prints the result
+    if printres == True:
+        avg_m = np.mean(cash)
+        inc_pct = average_t/avg_m*100
+        print(f'Average tax burden for the population is {average_t:.3f} mDKK, corresponding to {inc_pct:.2f} pct. of average cash-on-hand')
+
+    return average_t, h_stars1
 
 
