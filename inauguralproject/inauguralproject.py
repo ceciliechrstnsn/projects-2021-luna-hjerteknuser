@@ -197,3 +197,25 @@ def taxrev(mp, cash, N, printres = False):
     return average_t, h_stars1
 
 
+
+
+
+############################### Calculating tax revenue for Q5 ####################################
+def tax_objective_function(tau_g,mp,tax_target,cash,N):
+    '''
+    Calculates the difference between average tax burden and tax target for model parameters (mp), a distribution of cash-on-hand (cash) and a population size of N. This is done by calculating the optimal choice of spending and the implied tax payments associated with this choice.
+
+    Args:
+    tau_g (float)       : the flat housing tax
+    mp (dictionary)     : should contain keys: phi, r, tau_g, tau_p, epsilon, p_bar, m and their respective values.
+    cash (array)        : array of length equal to population size. Contains cash-on-hand for each individual in population, i.e. the distribution of cash-on-hand.
+    N (integer)         : denotes the size of population.
+
+    Returns:
+     (float) parameters : average tax rate given model parameters, distribution of cash-on-hand in the population.
+
+    '''
+    mp['tau_g'] = tau_g
+    current_tax = taxrev(mp, cash, N)[0]
+    tax_difference = abs(tax_target - current_tax)
+    return tax_difference
