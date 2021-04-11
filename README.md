@@ -5,6 +5,6 @@ The **results** of the project can be seen from running [inauguralproject.ipynb]
 **Dependencies:** Apart from a standard Anaconda Python 3 installation, the project requires no further packages. Besides this, we import the following packages within the [inauguralproject.ipynb](inauguralproject.ipynb); numpy, scipy, matplotlib.pyplot, random, time, seaborn and our [inauguralproject.py](inauguralproject.py) as pyfile.
 
 # Data project
+The data project shows how different sectors are affected, and how age, gender and sector employed vary in unemployment and employment. In this project we use data from Statistics Denmark. We collect data by using their API, where we have extracted data on the gross unemployment and the employment since 2008, by the tables: AUS07, AUP02, LBESK01. Furthermore, we have collected data regarding job vacancies from the table LSK01. 
 
-**Dependencies:** Apart from a standard Anaconda Python 3 installation, the project requires the DST packages with the following ..
-no further packages. Besides this, we import the following packages within the [inauguralproject.ipynb](inauguralproject.ipynb); numpy, scipy, matplotlib.pyplot, random, time, seaborn and our [inauguralproject.py](inauguralproject.py) as pyfile.
+**Dependencies:** Apart from a standard Anaconda Python 3 installation, the project requires the DST packages with the following code: "pip install git+https://github.com/elben10/pydst". Besides this, no further packages needs installation. We import the following packages numpy, scipy, matplotlib.pyplot, random, time, seaborn and ipywidgets. 
